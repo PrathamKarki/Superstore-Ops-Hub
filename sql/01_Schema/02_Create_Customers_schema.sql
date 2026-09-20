@@ -1,0 +1,16 @@
+-- Creating of master table 
+-- customers
+
+CREATE TABLE CUSTOMERS(
+    CUSTOMER_ID VARCHAR2(20) NOT NULL, 
+    CUSTOMER_NAME VARCHAR2(80) NOT NULL, 
+    SEGMENT VARCHAR2(30) NOT NULL, 
+    COUNTRY VARCHAR2(50),
+    CITY VARCHAR2(50),
+    STATE_PROVINCE VARCHAR2(20),
+    POSTAL_CODE VARCHAR2(20),
+    REGION VARCHAR2(20) NOT NULL,
+    CONSTRAINT pk_customer_id PRIMARY KEY(CUSTOMER_ID),
+    CONSTRAINT chk_cus_segment CHECK (segment IN ('Consumer', 'Corporate', 'Home Office'))
+)
+
