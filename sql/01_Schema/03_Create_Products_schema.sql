@@ -1,0 +1,11 @@
+-- creating the master table for products
+-- products
+
+CREATE TABLE products(
+    PRODUCT_ID VARCHAR2(30) NOT NULL, 
+    PRODUCT_NAME VARCHAR2(200) NOT NULL,
+    CATEGORGY VARCHAR2(30) NOT NULL, 
+    SUB_CATEGORY VARCHAR2(30) NOT NULL, 
+    CONSTRAINT pk_products_id PRIMARY KEY (PRODUCT_ID)
+);
+
