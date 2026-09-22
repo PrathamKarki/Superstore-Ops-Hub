@@ -167,17 +167,16 @@ Superstore-Ops-Hub/
 
 ## Reports & Analytics
 
-The reporting layer will provide business insights such as:
+The reporting layer  provides business insights such as:
 
-- Sales performance
-- Product performance
-- Customer analysis
-- Category analysis
-- Regional performance
-- Return analysis
+- Sales and profit by category
+- Top 10 products by sales and profit
+- Monthly sales and profit trends
+- Customer Gold/Silver/Bronze segmentation
+- Monthly category sales ranking
 - Inventory and reorder monitoring
 
-The reports will use Oracle SQL features including:
+The reports  uses Oracle SQL features including:
 
 - CTEs
 - Aggregations
