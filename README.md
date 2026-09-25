@@ -2,7 +2,7 @@
 
 Oracle PL/SQL retail operations system built from the Tableau Superstore dataset.
 
-The project demonstrates how a retail sales feed can be loaded into Oracle staging, merged into business tables, used to update inventory, and automatically generate reorder requests.
+The project demonstrates how a retail sales feed can be loaded into Oracle staging, merged into business tables, used to update inventory, and analyzed using sql and pl/sql
 
 ## Architecture
 
@@ -19,13 +19,9 @@ ORDERS
 ORDER_ITEMS
 RETURNS
  ↓
-PRC_APPLY_STOCK
- ↓
 INVENTORY
  ↓
-PRC_GENERATE_REORDER
- ↓
-REORDER_REQUESTS
+PRC_APPLY_STOCK
  ↓
 REPORTS & ANALYTICS
 ```
@@ -60,7 +56,6 @@ Used as the landing area for incoming sales data.
 ### Operations Tables
 
 - `INVENTORY`
-- `REORDER_REQUESTS`
 
 ## PL/SQL Components
 
@@ -84,28 +79,23 @@ Applies unprocessed order quantities to inventory.
 
 Uses `STOCK_APPLIED_FLAG` on `ORDER_ITEMS` to prevent the same sale from reducing inventory more than once.
 
-### `FN_REORDER_QTY`
+The procedure:
 
-Calculates the quantity required to restore inventory to the target stock level.
+- Finds order items where STOCK_APPLIED_FLAG = 'N'
+- Groups sales quantities by product
+- Checks the available inventory
+- Subtracts the sold quantity from inventory
+- Changes the processed order items to STOCK_APPLIED_FLAG = 'Y'
 
+The procedure processes only order items where:
 ```text
-Reorder Quantity = Target Stock - Current Stock
+STOCK_APPLIED_FLAG = 'N'
+```
+after processing, the flag changes to:
+```text
+STOCK_APPLIED_FLAG = 'Y'
 ```
 
-The current target stock is 100 units.
-
-### `PRC_GENERATE_REORDER`
-
-Checks inventory levels against reorder points.
-
-For products at or below the reorder point, the procedure:
-
-- Calculates reorder quantity
-- Determines reorder priority
-- Creates an `OPEN` reorder request
-- Skips products that already have an `OPEN` request
-
-This prevents duplicate open reorder requests.
 
 ## Data Flow
 
@@ -120,13 +110,13 @@ PRC_MERGE_SALES
    ↓
 Business Tables
    ↓
+Seed INVENTORY
+   ↓
 PRC_APPLY_STOCK
    ↓
 INVENTORY
    ↓
-PRC_GENERATE_REORDER
-   ↓
-REORDER_REQUESTS
+REPORTS & ANALYTICS
 ```
 
 ## Idempotency
@@ -141,7 +131,9 @@ For example, running `PRC_MERGE_SALES` again:
 
 `PRC_APPLY_STOCK` processes only order items whose `STOCK_APPLIED_FLAG = 'N'`.
 
-`PRC_GENERATE_REORDER` checks for an existing `OPEN` request before creating another one.
+After processing, those order items are marked as 
+`STOCK_APPLIED_FLAG = 'Y'`, preventing the same sale from reducing inventory again.
+
 
 ## Project Structure
 
@@ -156,7 +148,7 @@ Superstore-Ops-Hub/
 │   ├── 02_load/
 │   ├── 03_plsql/
 │   ├── 04_reports/
-│   
+│   ├── 05_demo/
 │
 ├── docs/
 │
@@ -166,17 +158,16 @@ Superstore-Ops-Hub/
 ```
 
 ## Reports & Analytics
-
-The reporting layer  provides business insights such as:
+The project contains five analytical reports:
 
 - Sales and profit by category
 - Top 10 products by sales and profit
 - Monthly sales and profit trends
 - Customer Gold/Silver/Bronze segmentation
 - Monthly category sales ranking
-- Inventory and reorder monitoring
 
-The reports  uses Oracle SQL features including:
+
+The reports uses Oracle SQL features including:
 
 - CTEs
 - Aggregations
@@ -184,7 +175,7 @@ The reports  uses Oracle SQL features including:
 - Subqueries
 - Window functions
 - Ranking
-- PL/SQL functions where appropriate
+- PL/SQL functions 
 
 ## Project Goals
 
@@ -193,16 +184,16 @@ This project demonstrates practical Oracle SQL and PL/SQL concepts through a ret
 Key concepts include:
 
 - Staging tables
+- Data validation
 - `MERGE`
 - Primary and foreign keys
 - Constraints
-- Procedures
-- Functions
+- Stored Procedures
+- PL/SQL functions
 - Explicit cursors
 - Exception handling
 - Idempotent processing
 - Inventory processing
-- Reorder automation
 - CTEs
 - Window functions
 - Analytical SQL
